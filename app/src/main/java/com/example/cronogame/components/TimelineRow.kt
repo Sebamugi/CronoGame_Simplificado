@@ -17,28 +17,32 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.cronogame.models.HistoricalEvent
 
 @Composable
-fun TimelineRow(timeline: List<HistoricalEvent>) {
+fun TimelineRow(
+    timeline: List<HistoricalEvent>
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
             .background(Color(0xFFE0E0E0)),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(8.dp) // Espaciado entre eventos
     ) {
-        timeline.forEachIndexed { index, event ->
+        timeline.forEach { event ->
             Box(
                 modifier = Modifier
                     .size(64.dp)
-                    .background(Color(0xFF6A1B9A), CircleShape),
+                    .clip(CircleShape)
+                    .background(Color(0xFF6A1B9A)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = event.year.toString(), // Aquí aseguramos que el año sea dinámico
+                    text = event.year.toString(),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White
                 )
@@ -46,3 +50,4 @@ fun TimelineRow(timeline: List<HistoricalEvent>) {
         }
     }
 }
+

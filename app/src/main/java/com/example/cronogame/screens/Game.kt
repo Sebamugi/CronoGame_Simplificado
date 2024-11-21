@@ -58,20 +58,20 @@ fun GameScreen(navController: NavController, categoryId: Int) {
             ) {
                 if (eventsList.isNotEmpty() && attemptsLeft > 0) {
                     DraggableCard(
-                        event = eventsList.first(),
+                        event = eventsList.first(), // <-- Aquí se debería reflejar el nuevo evento.
                         onDropped = { droppedEvent ->
                             if (timeline.isEmpty() || droppedEvent.year >= timeline.last().year) {
-                                timeline = timeline.toMutableList().apply { add(droppedEvent) } // Provoca recomposición
+                                timeline = timeline.toMutableList().apply { add(droppedEvent) }
                                 correctAnswers++
                             } else {
                                 attemptsLeft--
                             }
                             eventsList = eventsList.drop(1).toMutableList()
+                            println("Nuevo evento: ${eventsList.firstOrNull()?.eventName}")
                         }
                     )
 
                 } else {
-                    // Redirigir a la pantalla de resultados
                     navController.navigate("result/$correctAnswers")
                 }
 

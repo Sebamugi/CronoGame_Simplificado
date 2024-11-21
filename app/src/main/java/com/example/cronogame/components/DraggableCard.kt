@@ -28,8 +28,6 @@ import com.example.cronogame.models.HistoricalEvent
 
 @Composable
 fun DraggableCard(event: HistoricalEvent, onDropped: (HistoricalEvent) -> Unit) {
-    val dragPosition = remember { mutableStateOf(Offset(0f, 0f)) }
-
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
 
@@ -41,7 +39,7 @@ fun DraggableCard(event: HistoricalEvent, onDropped: (HistoricalEvent) -> Unit) 
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragEnd = {
-                        onDropped(event)
+                        onDropped(event) // Soltar la tarjeta actual.
                         offsetX = 0f
                         offsetY = 0f
                     },
@@ -54,19 +52,15 @@ fun DraggableCard(event: HistoricalEvent, onDropped: (HistoricalEvent) -> Unit) 
             .background(Color.LightGray, shape = CircleShape)
             .padding(24.dp)
     ) {
+        // Usa directamente los datos del evento.
         EventCard(
             categoryId = event.categoryId,
             eventName = event.eventName,
             year = event.year.toString()
         )
-
-        Modifier.pointerInput(Unit) {
-            detectTapGestures(onTap = {
-                onDropped(event)
-            })
-        }
     }
 }
+
 
 @Composable
 fun EventCard(
@@ -98,7 +92,7 @@ fun EventCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Año: XXXX",
+                text = "Año: $year",
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

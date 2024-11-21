@@ -25,7 +25,7 @@ import com.example.cronogame.navigation.AppScreens
 @Composable
 fun SelectCategory(navController: NavController) {
     val categories =
-        listOf("Categoría 1", "Categoría 2", "Categoría 3", "Categoría 4", "Categoría 5")
+        listOf("Historia universal", "Ciencia", "Historia de Chile", "Antigua Roma", "Historia de la literatura")
     Scaffold(
         topBar = {
             TopBar(
