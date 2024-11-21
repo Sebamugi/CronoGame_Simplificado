@@ -22,10 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.example.cronogame.models.HistoricalEvent
 
 @Composable
-fun TimelineRow(
-    timeline: List<HistoricalEvent>,
-    onEventAdded: (HistoricalEvent) -> Unit
-) {
+fun TimelineRow(timeline: List<HistoricalEvent>) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -33,7 +30,7 @@ fun TimelineRow(
             .background(Color(0xFFE0E0E0)),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        timeline.forEach { event ->
+        timeline.forEachIndexed { index, event ->
             Box(
                 modifier = Modifier
                     .size(64.dp)
@@ -41,7 +38,7 @@ fun TimelineRow(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = event.year.toString(),
+                    text = event.year.toString(), // Aquí aseguramos que el año sea dinámico
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White
                 )

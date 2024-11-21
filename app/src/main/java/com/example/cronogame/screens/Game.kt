@@ -39,7 +39,7 @@ import com.example.cronogame.navigation.AppScreens
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameScreen(navController: NavController, categoryId: Int) {
-    // Filtrar eventos por categoría
+
     val allEvents = InitialData.events.filter { it.categoryId == categoryId }
     var eventsList by remember { mutableStateOf(allEvents.toMutableList()) }
     var timeline by remember { mutableStateOf(mutableListOf<HistoricalEvent>()) }
@@ -60,9 +60,8 @@ fun GameScreen(navController: NavController, categoryId: Int) {
                     DraggableCard(
                         event = eventsList.first(),
                         onDropped = { droppedEvent ->
-                            // Verificar si el evento está correctamente posicionado en la línea de tiempo
                             if (timeline.isEmpty() || droppedEvent.year >= timeline.last().year) {
-                                timeline.add(droppedEvent)
+                                timeline = timeline.toMutableList().apply { add(droppedEvent) } // Provoca recomposición
                                 correctAnswers++
                             } else {
                                 attemptsLeft--
@@ -70,6 +69,7 @@ fun GameScreen(navController: NavController, categoryId: Int) {
                             eventsList = eventsList.drop(1).toMutableList()
                         }
                     )
+
                 } else {
                     // Redirigir a la pantalla de resultados
                     navController.navigate("result/$correctAnswers")
@@ -83,10 +83,7 @@ fun GameScreen(navController: NavController, categoryId: Int) {
                 )
 
                 TimelineRow(
-                    timeline = timeline,
-                    onEventAdded = { event ->
-                        timeline.add(event)
-                    }
+                    timeline = timeline
                 )
             }
         }

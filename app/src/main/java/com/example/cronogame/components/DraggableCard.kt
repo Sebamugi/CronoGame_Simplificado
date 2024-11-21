@@ -98,7 +98,7 @@ fun EventCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Año: $year",
+                text = "Año: XXXX",
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
