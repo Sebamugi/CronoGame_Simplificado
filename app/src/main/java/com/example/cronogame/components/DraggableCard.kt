@@ -5,10 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -27,29 +30,36 @@ import com.example.cronogame.models.HistoricalEvent
 fun DraggableCard(event: HistoricalEvent, onDropped: (HistoricalEvent) -> Unit) {
     val dragPosition = remember { mutableStateOf(Offset(0f, 0f)) }
 
+    var offsetX by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(0f) }
+
     Box(
         modifier = Modifier
-            .size(200.dp)
+            .fillMaxWidth()
             .padding(16.dp)
-            .background(Color.Gray)
+            .offset { IntOffset(offsetX.toInt(), offsetY.toInt()) }
             .pointerInput(Unit) {
-                detectDragGestures { _, dragAmount ->
-                    dragPosition.value = dragPosition.value.copy(
-                        x = dragPosition.value.x + dragAmount.x,
-                        y = dragPosition.value.y + dragAmount.y
-                    )
-                }
+                detectDragGestures(
+                    onDragEnd = {
+                        onDropped(event)
+                        offsetX = 0f
+                        offsetY = 0f
+                    },
+                    onDrag = { _, dragAmount ->
+                        offsetX += dragAmount.x
+                        offsetY += dragAmount.y
+                    }
+                )
             }
-            .offset { IntOffset(dragPosition.value.x.toInt(), dragPosition.value.y.toInt()) }
+            .background(Color.LightGray, shape = CircleShape)
+            .padding(24.dp)
     ) {
-        // Representación del evento en una tarjeta
         EventCard(
             categoryId = event.categoryId,
             eventName = event.eventName,
             year = event.year.toString()
         )
 
-        // Detecta la acción de soltar
         Modifier.pointerInput(Unit) {
             detectTapGestures(onTap = {
                 onDropped(event)

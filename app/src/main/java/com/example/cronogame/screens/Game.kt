@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,47 +39,14 @@ import com.example.cronogame.navigation.AppScreens
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameScreen(navController: NavController, categoryId: Int) {
-    val category = InitialData.categories.find { it.id == categoryId }
+    // Filtrar eventos por categoría
     val allEvents = InitialData.events.filter { it.categoryId == categoryId }
-
-    var attemptsLeft by remember { mutableStateOf(3) }
-    var eventsList by remember { mutableStateOf(allEvents) }
+    var eventsList by remember { mutableStateOf(allEvents.toMutableList()) }
     var timeline by remember { mutableStateOf(mutableListOf<HistoricalEvent>()) }
-
-    fun handleInvalidTimeline() {
-        attemptsLeft -= 1
-        if (attemptsLeft <= 0) {
-            navController.navigate(AppScreens.ResultScreen.route) {
-                popUpTo(AppScreens.GameScreen.route) { inclusive = true }
-            }
-        }
-    }
-
-    fun onEventDropped(event: HistoricalEvent) {
-        timeline.add(event)
-        eventsList = eventsList.drop(1) // Eliminar el evento de la lista
-        validateTimeline(timeline) { isValid ->
-            if (!isValid) handleInvalidTimeline()
-        }
-    }
+    var attemptsLeft by remember { mutableStateOf(3) } // Número de intentos disponibles
+    var correctAnswers by remember { mutableStateOf(0) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = category?.name ?: "Sin categoría",
-                            color = MaterialTheme.colorScheme.onBackground,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                }
-            )
-        },
         content = { innerPadding ->
             Column(
                 modifier = Modifier
@@ -88,29 +56,39 @@ fun GameScreen(navController: NavController, categoryId: Int) {
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (eventsList.isEmpty()) {
-                    Text("No hay eventos disponibles para esta categoría.")
-                } else {
+                if (eventsList.isNotEmpty() && attemptsLeft > 0) {
                     DraggableCard(
                         event = eventsList.first(),
-                        onDropped = { event -> onEventDropped(event) }
+                        onDropped = { droppedEvent ->
+                            // Verificar si el evento está correctamente posicionado en la línea de tiempo
+                            if (timeline.isEmpty() || droppedEvent.year >= timeline.last().year) {
+                                timeline.add(droppedEvent)
+                                correctAnswers++
+                            } else {
+                                attemptsLeft--
+                            }
+                            eventsList = eventsList.drop(1).toMutableList()
+                        }
                     )
+                } else {
+                    // Redirigir a la pantalla de resultados
+                    navController.navigate("result/$correctAnswers")
                 }
 
-                TimelineRow(timeline = timeline)
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "INTENTOS RESTANTES: $attemptsLeft",
-                    style = MaterialTheme.typography.titleLarge
+                    text = "Intentos restantes: $attemptsLeft",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                TimelineRow(
+                    timeline = timeline,
+                    onEventAdded = { event ->
+                        timeline.add(event)
+                    }
                 )
             }
         }
     )
-}
-
-fun validateTimeline(timeline: MutableList<HistoricalEvent>, onValidationComplete: (Boolean) -> Unit) {
-    val isValid = timeline.zipWithNext().all { (firstEvent, secondEvent) ->
-        firstEvent.year <= secondEvent.year
-    }
-    onValidationComplete(isValid)
 }

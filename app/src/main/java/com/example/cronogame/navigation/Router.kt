@@ -20,8 +20,9 @@ fun AppNavigation(){
         composable(route= AppScreens.HelpScreen.route){
             HowToPlayScreen(navController)
         }
-        composable(route= AppScreens.ResultScreen.route){
-            ResultScreen(navController, 2) //Reemplazar con logica para score
+        composable(route = "${AppScreens.ResultScreen.route}/{score}") { backStackEntry ->
+            val score = backStackEntry.arguments?.getString("score")?.toInt() ?: 0
+            ResultScreen(navController, score)
         }
         composable(route= AppScreens.GameScreen.route) {
             GameScreen(navController, 1)
